@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+	<title>Notifications</title>
+	<h:outputStylesheet library="plugins"
+		name="bootstrap/css/bootstrap.css" />
+
+	<h:outputStylesheet name="font-awesome/css/font-awesome.css" />
+	<h:outputStylesheet name="forge-style-overriden.css" />
+
+	<h:outputScript library="primefaces" name="jquery/jquery.js"
+		target="head" />
+	<h:outputScript library="primefaces" name="jquery/jquery-plugins.js"
+		target="head" />
+</h:head>
+
+<h:body>
+	<h:form prependId="false">
+
+		<p:growl id="msg" showDetail="false" />
+
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<h:link outcome="/payments.xhtml" styleClass="brand gray">
+                    Payments
+					</h:link>
+					<h:link outcome="/notifications.xhtml"
+						styleClass="brand pull-right">
+                    Notifications
+					</h:link>
+				</div>
+			</div>
+		</div>
+
+		<div class="container forgecontainer">
+
+			<div id="content">
+
+				<div class="row">
+					<div class="col-md-12">
+
+						<p:dataTable id="paymentsDataTable" rows="50" paginator="true"
+							paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="5,10,15,20,50,100,200"
+							paginatorAlwaysVisible="false" paginatorPosition="bottom"
+							value="#{notificationController.payments}" var="payment"
+							rowKey="#{payment.id}" rowIndexVar="index"
+							emptyMessage="No Payments"
+							rowStyleClass="#{payment.payed ? '' : 'bg-danger'} ">
+
+							<f:facet name="header">
+								<p:calendar id="changeDate" styleClass="pull-left"
+									value="#{notificationController.date}" pattern="dd-MM-yyyy">
+									<p:ajax event="dateSelect" update="paymentsDataTable"
+										listener="#{notificationController.changeDate}" />
+								</p:calendar>
+							</f:facet>
+
+							<p:column id="index" width="50">
+								<h:outputText value="#{index+1}"></h:outputText>
+							</p:column>
+
+							<p:column id="personName" headerText="Person Name"
+								filterBy="#{payment.personName}" filterMatchMode="contains"
+								sortBy="#{payment.personName}">
+								<h:outputText value="#{payment.personName}"
+									title="#{payment.personName}" />
+							</p:column>
+
+							<p:column id="phoneNumber" headerText="Phone Number"
+								filterBy="#{payment.phoneNumber}" filterMatchMode="contains"
+								sortBy="#{payment.phoneNumber}">
+								<h:outputText value="#{payment.phoneNumber}"
+									title="#{payment.phoneNumber}" />
+							</p:column>
+
+							<p:column id="price" headerText="Price"
+								filterBy="#{payment.price}" filterMatchMode="contains"
+								sortBy="#{payment.price}">
+								<h:outputText value="#{payment.price}" title="#{payment.price}" />
+							</p:column>
+
+							<p:column id="date" headerText="Date" sortBy="#{payment.date}">
+								<h:outputText value="#{payment.date}" title="#{payment.date}">
+									<f:convertDateTime type="date" pattern="dd-MM-yyyy" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="notes" headerText="Notes"
+								filterBy="#{payment.notes}" filterMatchMode="contains"
+								sortBy="#{payment.notes}">
+								<h:outputText value="#{payment.notes}" title="#{payment.notes}" />
+							</p:column>
+
+						</p:dataTable>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</h:form>
+</h:body>
+
+</html>

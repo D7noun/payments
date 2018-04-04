@@ -1,0 +1,339 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+	<title>Notifications</title>
+	<h:outputStylesheet library="plugins"
+		name="bootstrap/css/bootstrap.css" />
+
+	<h:outputStylesheet name="font-awesome/css/fontawesome-all.css" />
+	<h:outputStylesheet name="forge-style-overriden.css" />
+
+	<h:outputScript library="primefaces" name="jquery/jquery.js"
+		target="head" />
+	<h:outputScript library="primefaces" name="jquery/jquery-plugins.js"
+		target="head" />
+</h:head>
+
+<h:body>
+	<h:form prependId="false">
+
+		<p:growl id="msg" showDetail="false" />
+
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<h:link outcome="/payments.xhtml" styleClass="brand">
+                    Payments
+					</h:link>
+					<h:link outcome="/notifications.xhtml"
+						styleClass="brand pull-right gray">
+                    Notifications
+					</h:link>
+				</div>
+			</div>
+		</div>
+
+		<div class="container forgecontainer">
+
+			<div id="content">
+
+				<div class="row">
+					<div class="col-md-12">
+
+						<p:dataTable id="paymentsDataTable" rows="50" paginator="true"
+							paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="5,10,15,20,50,100,200"
+							paginatorAlwaysVisible="false" paginatorPosition="bottom"
+							value="#{paymentController.payments}" var="payment"
+							rowKey="#{payment.id}" rowIndexVar="index"
+							emptyMessage="No Payments"
+							rowStyleClass="#{payment.payed ? '' : 'bg-danger'} ">
+
+							<f:facet name="header">
+								<h:outputText value="Payments" styleClass="headerText" />
+
+								<h:commandLink action="#{paymentController.openAddDialog()}"
+									onclick="PF('addDialogVar').show()"
+									styleClass="btn btn-primary white headerButton">
+									<f:ajax />
+									<i class="fa fa-plus white" />
+								</h:commandLink>
+							</f:facet>
+
+							<p:column id="index" width="50">
+								<h:outputText value="#{index+1}"></h:outputText>
+							</p:column>
+
+							<p:column id="delete" width="50">
+								<h:commandLink styleClass="btn btn-sm btn-danger white"
+									action="#{paymentController.selectForDelete(payment)}"
+									onclick="PF('deleteDialogVar').show()">
+									<i class="fa fa-trash white" />
+									<f:ajax />
+								</h:commandLink>
+							</p:column>
+
+							<p:column id="edit" width="50">
+								<h:commandLink styleClass="btn btn-sm btn-success white"
+									action="#{paymentController.openEditDialog(payment)}">
+									<i class="fa fa-trash white" />
+									<p:ajax update="editDialog"
+										oncomplete="PF('editDialogVar').show()" />
+								</h:commandLink>
+							</p:column>
+
+							<p:column id="personName" headerText="Person Name"
+								filterBy="#{payment.personName}" filterMatchMode="contains"
+								sortBy="#{payment.personName}">
+								<h:outputText value="#{payment.personName}"
+									title="#{payment.personName}" />
+							</p:column>
+
+							<p:column id="phoneNumber" headerText="Phone Number"
+								filterBy="#{payment.phoneNumber}" filterMatchMode="contains"
+								sortBy="#{payment.phoneNumber}">
+								<h:outputText value="#{payment.phoneNumber}"
+									title="#{payment.phoneNumber}" />
+							</p:column>
+
+							<p:column id="price" headerText="Price"
+								filterBy="#{payment.price}" filterMatchMode="contains"
+								sortBy="#{payment.price}">
+								<h:outputText value="#{payment.price}" title="#{payment.price}" />
+							</p:column>
+
+							<p:column id="date" headerText="Date" sortBy="#{payment.date}">
+								<h:outputText value="#{payment.date}" title="#{payment.date}">
+									<f:convertDateTime type="date" pattern="dd-MM-yyyy" />
+								</h:outputText>
+							</p:column>
+
+							<p:column id="notes" headerText="Notes"
+								filterBy="#{payment.notes}" filterMatchMode="contains"
+								sortBy="#{payment.notes}">
+								<h:outputText value="#{payment.notes}" title="#{payment.notes}" />
+							</p:column>
+
+						</p:dataTable>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<p:dialog id="addDialog" widgetVar="addDialogVar"
+			header="Add New Payment" closable="true" showEffect="clip"
+			hideEffect="clip" draggable="false" maximizable="false" modal="true"
+			width="800" height="350" resizable="false" styleClass="addDialog"
+			onShow="$('.ui-calendar input').addClass('form-control')">
+
+
+			<div class="row">
+				<div class="col-md-12">
+
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Person Name:" />
+						</div>
+						<div class="col-md-8">
+							<h:inputText styleClass="form-control"
+								value="#{paymentController.addPayment.personName}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Phone Number:" />
+						</div>
+						<div class="col-md-8">
+							<h:inputText styleClass="form-control"
+								value="#{paymentController.addPayment.phoneNumber}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Price:" />
+						</div>
+						<div class="col-md-8">
+							<p:inputNumber inputStyleClass="form-control" emptyValue="0"
+								decimalPlaces="2" thousandSeparator="," decimalSeparator="."
+								symbol=" $" symbolPosition="s"
+								value="#{paymentController.addPayment.price}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Date:" />
+						</div>
+						<div class="col-md-8">
+							<p:calendar value="#{paymentController.addPayment.date}"
+								pattern="dd-MM-yyyy" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Notes:" />
+						</div>
+						<div class="col-md-8">
+							<h:inputText styleClass="form-control"
+								value="#{paymentController.addPayment.notes}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Payed:" />
+						</div>
+						<div class="col-md-8">
+							<p:selectBooleanCheckbox
+								value="#{paymentController.addPayment.payed}" />
+						</div>
+					</div>
+
+
+				</div>
+
+			</div>
+
+			<f:facet name="footer">
+				<h:commandLink value="Ok" action="#{paymentController.add()}"
+					styleClass="btn btn-primary popup-buttons"
+					onclick="PF('addDialogVar').hide()">
+					<f:ajax render="paymentsDataTable msg" execute="addDialog" />
+				</h:commandLink>
+				<h:commandLink styleClass="btn btn-danger popup-buttons"
+					onclick="PF('addDialogVar').hide()">
+					<h:outputText value="Cancel" />
+					<f:ajax />
+				</h:commandLink>
+			</f:facet>
+
+		</p:dialog>
+
+		<p:dialog id="editDialog" widgetVar="editDialogVar"
+			header="Edit Payment" closable="true" showEffect="clip"
+			hideEffect="clip" draggable="false" maximizable="false" modal="true"
+			width="800" height="350" resizable="false" styleClass="addDialog"
+			onShow="$('.ui-calendar input').addClass('form-control')">
+
+
+			<div class="row">
+				<div class="col-md-12">
+
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Person Name:" />
+						</div>
+						<div class="col-md-8">
+							<h:inputText styleClass="form-control"
+								value="#{paymentController.editPayment.personName}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Phone Number:" />
+						</div>
+						<div class="col-md-8">
+							<h:inputText styleClass="form-control"
+								value="#{paymentController.editPayment.phoneNumber}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Price:" />
+						</div>
+						<div class="col-md-8">
+							<p:inputNumber inputStyleClass="form-control" emptyValue="0"
+								decimalPlaces="2" thousandSeparator="," decimalSeparator="."
+								symbol=" $" symbolPosition="s"
+								value="#{paymentController.editPayment.price}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Date:" />
+						</div>
+						<div class="col-md-8">
+							<p:calendar value="#{paymentController.editPayment.date}"
+								pattern="dd-MM-yyyy" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Notes:" />
+						</div>
+						<div class="col-md-8">
+							<h:inputText styleClass="form-control"
+								value="#{paymentController.editPayment.notes}" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-4">
+							<h:outputLabel value="Payed:" />
+						</div>
+						<div class="col-md-8">
+							<p:selectBooleanCheckbox
+								value="#{paymentController.editPayment.payed}" />
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+
+			<f:facet name="footer">
+				<h:commandLink value="Ok" action="#{paymentController.edit()}"
+					styleClass="btn btn-primary popup-buttons"
+					onclick="PF('editDialogVar').hide()">
+					<f:ajax render="paymentsDataTable msg" execute="editDialog" />
+				</h:commandLink>
+				<h:commandLink styleClass="btn btn-danger popup-buttons"
+					onclick="PF('editDialogVar').hide()">
+					<h:outputText value="Cancel" />
+					<f:ajax />
+				</h:commandLink>
+			</f:facet>
+
+		</p:dialog>
+
+		<p:dialog id="deleteDialog" draggable="false" closable="false"
+			showEffect="clip" hideEffect="clip" modal="true" height="50"
+			width="350" resizable="false" widgetVar="deleteDialogVar">
+			<f:facet name="header">
+				<h:outputText value="Confirm Deletion ????" />
+			</f:facet>
+
+			<h:commandLink value="Ok" action="#{paymentController.delete()}"
+				styleClass="btn btn-primary popup-buttons"
+				onclick="PF('deleteDialogVar').hide()">
+				<f:ajax render="paymentsDataTable msg" />
+			</h:commandLink>
+			<h:commandLink styleClass="btn btn-danger popup-buttons"
+				onclick="PF('deleteDialogVar').hide()">
+				<h:outputText value="Cancel" />
+				<f:ajax />
+			</h:commandLink>
+		</p:dialog>
+
+	</h:form>
+</h:body>
+
+</html>
