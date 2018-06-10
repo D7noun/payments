@@ -2,6 +2,8 @@ package org.D7noun.view;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -9,7 +11,10 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
+import org.D7noun.dto.CustomerPaymentDto;
+import org.D7noun.model.Customer;
 import org.D7noun.model.Payment;
+import org.omnifaces.util.Ajax;
 
 @ManagedBean
 @ViewScoped
@@ -21,18 +26,20 @@ public class PaymentController implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@EJB
+	private CustomerFacade customerFacade;
+	@EJB
 	private PaymentFacade paymentFacade;
 
-	public List<Payment> payments = new ArrayList<Payment>();
+	public List<CustomerPaymentDto> payments = new ArrayList<CustomerPaymentDto>();
 
-	private Payment addPayment;
-	private Payment editPayment;
-	private Payment deletePayment;
+	private CustomerPaymentDto addCustomerPaymentDto;
+	private CustomerPaymentDto editCustomerPaymentDto;
+	private CustomerPaymentDto deleteCustomerPaymentDto;
 
 	@PostConstruct
 	public void init() {
 		try {
-			payments = paymentFacade.getAll();
+			payments = paymentFacade.getAllUnpaid();
 		} catch (Exception e) {
 			System.err.println("D7noun: init");
 			e.printStackTrace();
@@ -40,45 +47,96 @@ public class PaymentController implements Serializable {
 	}
 
 	public void openAddDialog() {
-		addPayment = new Payment();
+		addCustomerPaymentDto = new CustomerPaymentDto();
 	}
 
-	public void openEditDialog(Payment payment) {
-		editPayment = payment;
+	public void openEditDialog(CustomerPaymentDto customerPaymentDto) {
+		editCustomerPaymentDto = customerPaymentDto;
+		Ajax.update("editDialog");
+		Ajax.oncomplete("PF('editDialogVar').show()");
 	}
 
 	public void add() {
 		try {
-			addPayment = paymentFacade.edit(addPayment);
-			payments = paymentFacade.getAll();
+			Customer customer = new Customer();
+			Payment payment = new Payment();
+
+			customer.setName(addCustomerPaymentDto.getName());
+			customer.setPhoneNumber(addCustomerPaymentDto.getPhoneNumber());
+
+			customerFacade.edit(customer);
+
+			payment.setCustomer(customer);
+			payment.setDate(addCustomerPaymentDto.getDate());
+			payment.setPrice(addCustomerPaymentDto.getPrice());
+			payment.setNotes(addCustomerPaymentDto.getNotes());
+
+			paymentFacade.edit(payment);
+
+			payments = paymentFacade.getAllUnpaid();
 		} catch (Exception e) {
-			System.err.println("D7noun: add");
 			e.printStackTrace();
+			System.err.println("D7noun: add");
 		}
 	}
 
 	public void edit() {
 		try {
-			editPayment = paymentFacade.edit(editPayment);
-			payments = paymentFacade.getAll();
+			Customer customer = customerFacade.findById(editCustomerPaymentDto.getCustomerId());
+			Payment payment = paymentFacade.findById(editCustomerPaymentDto.getPaymentId());
+
+			customer.setName(editCustomerPaymentDto.getName());
+			customer.setPhoneNumber(editCustomerPaymentDto.getPhoneNumber());
+			customerFacade.edit(customer);
+
+			payment.setCustomer(customer);
+			payment.setDate(editCustomerPaymentDto.getDate());
+			payment.setPrice(editCustomerPaymentDto.getPrice());
+			payment.setNotes(editCustomerPaymentDto.getNotes());
+
+			if (editCustomerPaymentDto.isPayed()) {
+				payment.setPayed(true);
+				Payment newPayment = new Payment();
+
+				newPayment.setCustomer(customer);
+				newPayment.setDate(addOneMonth(editCustomerPaymentDto.getDate()));
+				newPayment.setPrice(editCustomerPaymentDto.getPrice());
+				newPayment.setNotes(editCustomerPaymentDto.getNotes());
+				newPayment.setPayed(false);
+				paymentFacade.edit(newPayment);
+			}
+
+			paymentFacade.edit(payment);
+			payments = paymentFacade.getAllUnpaid();
+
 		} catch (Exception e) {
 			System.err.println("D7noun: edit");
 			e.printStackTrace();
 		}
 	}
 
-	public void selectForDelete(Payment payment) {
-		deletePayment = payment;
+	public void selectForDelete(CustomerPaymentDto customerPaymentDto) {
+		deleteCustomerPaymentDto = customerPaymentDto;
 	}
 
 	public void delete() {
 		try {
-			paymentFacade.remove(deletePayment);
-			payments = paymentFacade.getAll();
+			Customer customer = customerFacade.findById(deleteCustomerPaymentDto.getCustomerId());
+			if (customer != null) {
+				customerFacade.remove(customer);
+			}
+			payments = paymentFacade.getAllUnpaid();
 		} catch (Exception e) {
 			System.err.println("D7noun: delete");
 			e.printStackTrace();
 		}
+	}
+
+	private Date addOneMonth(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.MONTH, 1);
+		return cal.getTime();
 	}
 
 	/**
@@ -105,7 +163,7 @@ public class PaymentController implements Serializable {
 	/**
 	 * @return the payments
 	 */
-	public List<Payment> getPayments() {
+	public List<CustomerPaymentDto> getPayments() {
 		return payments;
 	}
 
@@ -113,38 +171,53 @@ public class PaymentController implements Serializable {
 	 * @param payments
 	 *            the payments to set
 	 */
-	public void setPayments(List<Payment> payments) {
+	public void setPayments(List<CustomerPaymentDto> payments) {
 		this.payments = payments;
 	}
 
 	/**
-	 * @return the addPayment
+	 * @return the addCustomerPaymentDto
 	 */
-	public Payment getAddPayment() {
-		return addPayment;
+	public CustomerPaymentDto getAddCustomerPaymentDto() {
+		return addCustomerPaymentDto;
 	}
 
 	/**
-	 * @param addPayment
-	 *            the addPayment to set
+	 * @param addCustomerPaymentDto
+	 *            the addCustomerPaymentDto to set
 	 */
-	public void setAddPayment(Payment addPayment) {
-		this.addPayment = addPayment;
+	public void setAddCustomerPaymentDto(CustomerPaymentDto addCustomerPaymentDto) {
+		this.addCustomerPaymentDto = addCustomerPaymentDto;
 	}
 
 	/**
-	 * @return the editPayment
+	 * @return the editCustomerPaymentDto
 	 */
-	public Payment getEditPayment() {
-		return editPayment;
+	public CustomerPaymentDto getEditCustomerPaymentDto() {
+		return editCustomerPaymentDto;
 	}
 
 	/**
-	 * @param editPayment
-	 *            the editPayment to set
+	 * @param editCustomerPaymentDto
+	 *            the editCustomerPaymentDto to set
 	 */
-	public void setEditPayment(Payment editPayment) {
-		this.editPayment = editPayment;
+	public void setEditCustomerPaymentDto(CustomerPaymentDto editCustomerPaymentDto) {
+		this.editCustomerPaymentDto = editCustomerPaymentDto;
+	}
+
+	/**
+	 * @return the deleteCustomerPaymentDto
+	 */
+	public CustomerPaymentDto getDeleteCustomerPaymentDto() {
+		return deleteCustomerPaymentDto;
+	}
+
+	/**
+	 * @param deleteCustomerPaymentDto
+	 *            the deleteCustomerPaymentDto to set
+	 */
+	public void setDeleteCustomerPaymentDto(CustomerPaymentDto deleteCustomerPaymentDto) {
+		this.deleteCustomerPaymentDto = deleteCustomerPaymentDto;
 	}
 
 	/**
@@ -152,21 +225,6 @@ public class PaymentController implements Serializable {
 	 */
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}
-
-	/**
-	 * @return the deletePayment
-	 */
-	public Payment getDeletePayment() {
-		return deletePayment;
-	}
-
-	/**
-	 * @param deletePayment
-	 *            the deletePayment to set
-	 */
-	public void setDeletePayment(Payment deletePayment) {
-		this.deletePayment = deletePayment;
 	}
 
 }

@@ -8,16 +8,13 @@ import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
-import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 
-import org.D7noun.dto.CustomerPaymentDto;
 import org.D7noun.model.Customer;
-import org.D7noun.model.Payment;
 
 @Stateful
 @LocalBean
-public class PaymentFacade implements Serializable {
+public class CustomerFacade implements Serializable {
 
 	/**
 	 * 
@@ -27,44 +24,31 @@ public class PaymentFacade implements Serializable {
 	@PersistenceContext(unitName = "payments-pu", type = PersistenceContextType.EXTENDED)
 	private EntityManager entityManager;
 
-	public Payment findById(Long id) {
+	public Customer findById(Long id) {
 		try {
-			return this.entityManager.find(Payment.class, id);
+			return this.entityManager.find(Customer.class, id);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.err.println(" Payment findById");
+			System.err.println(" Customer findById");
 		}
 		return null;
 	}
 
-	public List<Payment> getAll() {
-		CriteriaQuery<Payment> criteria = this.entityManager.getCriteriaBuilder().createQuery(Payment.class);
-		return this.entityManager.createQuery(criteria.select(criteria.from(Payment.class))).getResultList();
+	public List<Customer> getAll() {
+		CriteriaQuery<Customer> criteria = this.entityManager.getCriteriaBuilder().createQuery(Customer.class);
+		return this.entityManager.createQuery(criteria.select(criteria.from(Customer.class))).getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<CustomerPaymentDto> getAllUnpaid() {
-		try {
-			Query query = this.entityManager.createNamedQuery(Customer.getAllUnpaid);
-			List<CustomerPaymentDto> result = query.getResultList();
-			return result;
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("D7noun: getAllUnpaid");
-		}
-		return null;
-	}
-
-	public void edit(Payment payment) {
-		if (payment.getId() == null) {
-			this.entityManager.persist(payment);
+	public void edit(Customer customer) {
+		if (customer.getId() == null) {
+			this.entityManager.persist(customer);
 		} else {
-			this.entityManager.merge(payment);
+			this.entityManager.merge(customer);
 		}
 	}
 
-	public void remove(Payment payment) {
-		this.entityManager.remove(payment);
+	public void remove(Customer customer) {
+		this.entityManager.remove(customer);
 	}
 
 	/**

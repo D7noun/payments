@@ -3,8 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:p="http://primefaces.org/ui">
 
 
@@ -13,7 +11,9 @@
 	<h:outputStylesheet library="plugins"
 		name="bootstrap/css/bootstrap.css" />
 
-	<h:outputStylesheet name="font-awesome/css/fontawesome-all.css" />
+	<link rel="stylesheet"
+		href="resources/font-awesome/css/font-awesome.css" />
+
 	<h:outputStylesheet name="forge-style-overriden.css" />
 
 	<h:outputScript library="primefaces" name="jquery/jquery.js"
@@ -23,9 +23,7 @@
 </h:head>
 
 <h:body>
-	<h:form prependId="false">
-
-		<p:growl id="msg" showDetail="false" />
+	<h:form id="paymentsForms" prependId="false">
 
 		<div class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
@@ -48,14 +46,14 @@
 				<div class="row">
 					<div class="col-md-12">
 
-						<p:dataTable id="paymentsDataTable" rows="50" paginator="true"
+						<p:dataTable id="paymentsDataTable" rows="100" paginator="true"
 							paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-							rowsPerPageTemplate="5,10,15,20,50,100,200"
+							rowsPerPageTemplate="5,10,50,100,200,500"
 							paginatorAlwaysVisible="false" paginatorPosition="bottom"
 							value="#{paymentController.payments}" var="payment"
-							rowKey="#{payment.id}" rowIndexVar="index"
-							emptyMessage="No Payments"
-							rowStyleClass="#{payment.payed ? '' : 'bg-danger'} ">
+							rowIndexVar="index" emptyMessage="No Payments"
+							widgetVar="paymentsVar" rowKey="#{payment.customerId}"
+							rowStyleClass="#{payment.rowStyleClass()}">
 
 							<f:facet name="header">
 								<h:outputText value="Payments" styleClass="headerText" />
@@ -68,7 +66,7 @@
 								</h:commandLink>
 							</f:facet>
 
-							<p:column id="index" width="50">
+							<p:column id="index" width="70">
 								<h:outputText value="#{index+1}"></h:outputText>
 							</p:column>
 
@@ -84,41 +82,35 @@
 							<p:column id="edit" width="50">
 								<h:commandLink styleClass="btn btn-sm btn-success white"
 									action="#{paymentController.openEditDialog(payment)}">
-									<i class="fa fa-trash white" />
-									<p:ajax update="editDialog"
-										oncomplete="PF('editDialogVar').show()" />
+									<i class="fa fa-pencil white" />
+									<f:ajax />
 								</h:commandLink>
 							</p:column>
 
 							<p:column id="personName" headerText="Person Name"
-								filterBy="#{payment.personName}" filterMatchMode="contains"
-								sortBy="#{payment.personName}">
-								<h:outputText value="#{payment.personName}"
-									title="#{payment.personName}" />
+								sortBy="#{payment.name}" width="150">
+								<h:outputText value="#{payment.name}" title="#{payment.name}" />
 							</p:column>
 
 							<p:column id="phoneNumber" headerText="Phone Number"
-								filterBy="#{payment.phoneNumber}" filterMatchMode="contains"
-								sortBy="#{payment.phoneNumber}">
+								sortBy="#{payment.phoneNumber}" width="150">
 								<h:outputText value="#{payment.phoneNumber}"
 									title="#{payment.phoneNumber}" />
 							</p:column>
 
-							<p:column id="price" headerText="Price"
-								filterBy="#{payment.price}" filterMatchMode="contains"
-								sortBy="#{payment.price}">
+							<p:column id="price" headerText="Price" sortBy="#{payment.price}"
+								width="100">
 								<h:outputText value="#{payment.price}" title="#{payment.price}" />
 							</p:column>
 
-							<p:column id="date" headerText="Date" sortBy="#{payment.date}">
+							<p:column id="date" headerText="Date" width="130"
+								sortBy="#{payment.date}">
 								<h:outputText value="#{payment.date}" title="#{payment.date}">
 									<f:convertDateTime type="date" pattern="dd-MM-yyyy" />
 								</h:outputText>
 							</p:column>
 
-							<p:column id="notes" headerText="Notes"
-								filterBy="#{payment.notes}" filterMatchMode="contains"
-								sortBy="#{payment.notes}">
+							<p:column id="notes" headerText="Notes" sortBy="#{payment.notes}">
 								<h:outputText value="#{payment.notes}" title="#{payment.notes}" />
 							</p:column>
 
@@ -146,7 +138,7 @@
 						</div>
 						<div class="col-md-8">
 							<h:inputText styleClass="form-control"
-								value="#{paymentController.addPayment.personName}" />
+								value="#{paymentController.addCustomerPaymentDto.name}" />
 						</div>
 					</div>
 
@@ -156,7 +148,7 @@
 						</div>
 						<div class="col-md-8">
 							<h:inputText styleClass="form-control"
-								value="#{paymentController.addPayment.phoneNumber}" />
+								value="#{paymentController.addCustomerPaymentDto.phoneNumber}" />
 						</div>
 					</div>
 
@@ -168,7 +160,7 @@
 							<p:inputNumber inputStyleClass="form-control" emptyValue="0"
 								decimalPlaces="2" thousandSeparator="," decimalSeparator="."
 								symbol=" $" symbolPosition="s"
-								value="#{paymentController.addPayment.price}" />
+								value="#{paymentController.addCustomerPaymentDto.price}" />
 						</div>
 					</div>
 
@@ -177,7 +169,8 @@
 							<h:outputLabel value="Date:" />
 						</div>
 						<div class="col-md-8">
-							<p:calendar value="#{paymentController.addPayment.date}"
+							<p:calendar
+								value="#{paymentController.addCustomerPaymentDto.date}"
 								pattern="dd-MM-yyyy" />
 						</div>
 					</div>
@@ -188,20 +181,9 @@
 						</div>
 						<div class="col-md-8">
 							<h:inputText styleClass="form-control"
-								value="#{paymentController.addPayment.notes}" />
+								value="#{paymentController.addCustomerPaymentDto.notes}" />
 						</div>
 					</div>
-
-					<div class="form-group">
-						<div class="col-md-4">
-							<h:outputLabel value="Payed:" />
-						</div>
-						<div class="col-md-8">
-							<p:selectBooleanCheckbox
-								value="#{paymentController.addPayment.payed}" />
-						</div>
-					</div>
-
 
 				</div>
 
@@ -211,7 +193,7 @@
 				<h:commandLink value="Ok" action="#{paymentController.add()}"
 					styleClass="btn btn-primary popup-buttons"
 					onclick="PF('addDialogVar').hide()">
-					<f:ajax render="paymentsDataTable msg" execute="addDialog" />
+					<f:ajax render="paymentsDataTable" execute="addDialog" />
 				</h:commandLink>
 				<h:commandLink styleClass="btn btn-danger popup-buttons"
 					onclick="PF('addDialogVar').hide()">
@@ -239,7 +221,7 @@
 						</div>
 						<div class="col-md-8">
 							<h:inputText styleClass="form-control"
-								value="#{paymentController.editPayment.personName}" />
+								value="#{paymentController.editCustomerPaymentDto.name}" />
 						</div>
 					</div>
 
@@ -249,7 +231,7 @@
 						</div>
 						<div class="col-md-8">
 							<h:inputText styleClass="form-control"
-								value="#{paymentController.editPayment.phoneNumber}" />
+								value="#{paymentController.editCustomerPaymentDto.phoneNumber}" />
 						</div>
 					</div>
 
@@ -261,7 +243,7 @@
 							<p:inputNumber inputStyleClass="form-control" emptyValue="0"
 								decimalPlaces="2" thousandSeparator="," decimalSeparator="."
 								symbol=" $" symbolPosition="s"
-								value="#{paymentController.editPayment.price}" />
+								value="#{paymentController.editCustomerPaymentDto.price}" />
 						</div>
 					</div>
 
@@ -270,7 +252,8 @@
 							<h:outputLabel value="Date:" />
 						</div>
 						<div class="col-md-8">
-							<p:calendar value="#{paymentController.editPayment.date}"
+							<p:calendar
+								value="#{paymentController.editCustomerPaymentDto.date}"
 								pattern="dd-MM-yyyy" />
 						</div>
 					</div>
@@ -281,7 +264,7 @@
 						</div>
 						<div class="col-md-8">
 							<h:inputText styleClass="form-control"
-								value="#{paymentController.editPayment.notes}" />
+								value="#{paymentController.editCustomerPaymentDto.notes}" />
 						</div>
 					</div>
 
@@ -290,8 +273,8 @@
 							<h:outputLabel value="Payed:" />
 						</div>
 						<div class="col-md-8">
-							<p:selectBooleanCheckbox
-								value="#{paymentController.editPayment.payed}" />
+							<p:selectBooleanButton offLabel="NO" onLabel="YES"
+								value="#{paymentController.editCustomerPaymentDto.payed}" />
 						</div>
 					</div>
 
@@ -303,7 +286,7 @@
 				<h:commandLink value="Ok" action="#{paymentController.edit()}"
 					styleClass="btn btn-primary popup-buttons"
 					onclick="PF('editDialogVar').hide()">
-					<f:ajax render="paymentsDataTable msg" execute="editDialog" />
+					<f:ajax render="paymentsDataTable" execute="editDialog" />
 				</h:commandLink>
 				<h:commandLink styleClass="btn btn-danger popup-buttons"
 					onclick="PF('editDialogVar').hide()">
@@ -324,7 +307,7 @@
 			<h:commandLink value="Ok" action="#{paymentController.delete()}"
 				styleClass="btn btn-primary popup-buttons"
 				onclick="PF('deleteDialogVar').hide()">
-				<f:ajax render="paymentsDataTable msg" />
+				<f:ajax render="paymentsDataTable" />
 			</h:commandLink>
 			<h:commandLink styleClass="btn btn-danger popup-buttons"
 				onclick="PF('deleteDialogVar').hide()">

@@ -695,3 +695,17 @@ textarea.form-control {
 .gray {
 	color: #777 !important;
 }
+
+.ui-column-customfilter {
+	float: left;
+	width: 80%;
+}
+
+.ui-column-customfilter input {
+	width: 100%;
+}
+
+/*.ui-datatable .ui-sortable-column-icon {
+	display: inline-block;
+	margin: 10px 0 0px 2px !important;
+}*/
