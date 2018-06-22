@@ -7,7 +7,7 @@
 
 
 <h:head>
-	<title>Notifications</title>
+	<title>Payments</title>
 	<h:outputStylesheet library="plugins"
 		name="bootstrap/css/bootstrap.css" />
 
@@ -32,9 +32,9 @@
                     Payments
 					</h:link>
 					<h:link outcome="/notifications.xhtml"
-						styleClass="brand pull-right gray">
-                    Notifications
-					</h:link>
+						styleClass="brand pull-right gray hide">
+					                    Notifications
+										</h:link>
 				</div>
 			</div>
 		</div>
@@ -44,6 +44,61 @@
 			<div id="content">
 
 				<div class="row">
+
+					<div class="col-md-12" style="margin-top: 10px;">
+
+						<div class="col-md-3">
+							<div class="form-group">
+								<div class="col-md-4">
+									<h:outputLabel styleClass="control-label" value="From: " />
+								</div>
+								<div class="col-md-8">
+									<p:calendar id="fromDate" value="#{paymentController.fromDate}"
+										pattern="dd-MM-yyyy" />
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-3">
+							<div class="form-group">
+								<div class="col-md-4">
+									<h:outputLabel styleClass="control-label" value="To: " />
+								</div>
+								<div class="col-md-8">
+									<p:calendar id="toDate" value="#{paymentController.toDate}"
+										pattern="dd-MM-yyyy" />
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-4">
+							<div class="form-group">
+								<div class="col-md-4">
+									<h:outputLabel styleClass="control-label" value="Total:" />
+								</div>
+								<div class="col-md-8">
+									<h:inputText id="totalPayment" readonly="true"
+										value="#{paymentController.totalPrice}"
+										styleClass="form-control" />
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-2">
+							<h:commandLink action="#{paymentController.search()}"
+								styleClass="btn btn-success btn-lg pull-right">
+								<i class="fa fa-search" />
+								<f:ajax execute="fromDate toDate"
+									render="paymentsDataTable totalPayment" />
+							</h:commandLink>
+						</div>
+					</div>
+
+					<div class="col-md-12">
+						<p:separator />
+					</div>
+
+
 					<div class="col-md-12">
 
 						<p:dataTable id="paymentsDataTable" rows="100" paginator="true"
@@ -63,6 +118,12 @@
 									styleClass="btn btn-primary white headerButton">
 									<f:ajax />
 									<i class="fa fa-plus white" />
+								</h:commandLink>
+
+								<h:commandLink
+									styleClass="btn btn-info white headerButton exportToExcel"
+									action="#{paymentController.exportToExcel()}">
+									<i class="fa fa-file-excel-o white" />
 								</h:commandLink>
 							</f:facet>
 
@@ -316,6 +377,7 @@
 			</h:commandLink>
 		</p:dialog>
 
+		<h:outputScript name="calendar.js" />
 	</h:form>
 </h:body>
 

@@ -1,6 +1,7 @@
 package org.D7noun.view;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -53,6 +54,101 @@ public class PaymentFacade implements Serializable {
 			System.err.println("D7noun: getAllUnpaid");
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<CustomerPaymentDto> getAllUnpaidWithOneDate(Date date) {
+		try {
+			Query query = this.entityManager.createNamedQuery(Customer.getAllUnpaidWithOneDate);
+			query.setParameter("date", date);
+			List<CustomerPaymentDto> result = query.getResultList();
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("D7noun: getAllUnpaidWithOneDate");
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<CustomerPaymentDto> getAllUnpaidBetweenTwoDates(Date fromDate, Date toDate) {
+		try {
+			Query query = this.entityManager.createNamedQuery(Customer.getAllUnpaidBetweenTwoDates);
+			query.setParameter("fromDate", fromDate);
+			query.setParameter("toDate", toDate);
+			List<CustomerPaymentDto> result = query.getResultList();
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("D7noun: getAllUnpaidBetweenTwoDates");
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<CustomerPaymentDto> getAllPaidWithOneDate(Date date) {
+		try {
+			Query query = this.entityManager.createNamedQuery(Customer.getAllPaidWithOneDate);
+			query.setParameter("date", date);
+			List<CustomerPaymentDto> result = query.getResultList();
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("D7noun: getAllPaidWithOneDate");
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<CustomerPaymentDto> getAllPaidBetweenTwoDates(Date fromDate, Date toDate) {
+		try {
+			Query query = this.entityManager.createNamedQuery(Customer.getAllPaidBetweenTwoDates);
+			query.setParameter("fromDate", fromDate);
+			query.setParameter("toDate", toDate);
+			List<CustomerPaymentDto> result = query.getResultList();
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("D7noun: getAllPaidBetweenTwoDates");
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public double getPriceWithOneDate(Date date) {
+		try {
+			double totalPrice = 0;
+			Query query = this.entityManager.createNamedQuery(Customer.getPricesWithOneDate);
+			query.setParameter("date", date);
+			List<Double> result = query.getResultList();
+			for (Double double1 : result) {
+				totalPrice += double1;
+			}
+			return totalPrice;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("D7noun: getAllPaidBetweenTwoDates");
+		}
+		return 0;
+	}
+
+	@SuppressWarnings("unchecked")
+	public double getPricesBetweenTwoDates(Date fromDate, Date toDate) {
+		try {
+			double totalPrice = 0;
+			Query query = this.entityManager.createNamedQuery(Customer.getPricesWithTwoDates);
+			query.setParameter("fromDate", fromDate);
+			query.setParameter("toDate", toDate);
+			List<Double> result = query.getResultList();
+			for (Double double1 : result) {
+				totalPrice += double1;
+			}
+			return totalPrice;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("D7noun: getAllPaidBetweenTwoDates");
+		}
+		return 0;
 	}
 
 	public void edit(Payment payment) {

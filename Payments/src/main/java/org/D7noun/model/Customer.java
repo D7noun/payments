@@ -15,11 +15,24 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
 
-@NamedQueries(@NamedQuery(name = Customer.getAllUnpaid, query = "SELECT new org.D7noun.dto.CustomerPaymentDto(c.id, c.name, c.phoneNumber, p.id, p.price, p.date, p.notes) FROM Customer c INNER JOIN c.payments p WHERE p.payed=false AND c.id = p.customer.id ORDER BY c.name asc"))
+@NamedQueries({
+		@NamedQuery(name = Customer.getAllUnpaidBetweenTwoDates, query = "SELECT new org.D7noun.dto.CustomerPaymentDto(c.id, c.name, c.phoneNumber, p.id, p.price, p.date, p.notes) FROM Customer c INNER JOIN c.payments p WHERE p.payed=false AND c.id = p.customer.id AND p.date BETWEEN :fromDate AND :toDate ORDER BY p.date asc"),
+		@NamedQuery(name = Customer.getAllUnpaidWithOneDate, query = "SELECT new org.D7noun.dto.CustomerPaymentDto(c.id, c.name, c.phoneNumber, p.id, p.price, p.date, p.notes) FROM Customer c INNER JOIN c.payments p WHERE p.payed=false AND c.id = p.customer.id AND p.date = :date ORDER BY p.date asc"),
+		@NamedQuery(name = Customer.getAllUnpaid, query = "SELECT new org.D7noun.dto.CustomerPaymentDto(c.id, c.name, c.phoneNumber, p.id, p.price, p.date, p.notes) FROM Customer c INNER JOIN c.payments p WHERE p.payed=false AND c.id = p.customer.id ORDER BY p.date asc"),
+		@NamedQuery(name = Customer.getAllPaidBetweenTwoDates, query = "SELECT new org.D7noun.dto.CustomerPaymentDto(c.id, c.name, c.phoneNumber, p.id, p.price, p.date, p.notes) FROM Customer c INNER JOIN c.payments p WHERE c.id = p.customer.id AND p.date BETWEEN :fromDate AND :toDate ORDER BY p.date asc"),
+		@NamedQuery(name = Customer.getAllPaidWithOneDate, query = "SELECT new org.D7noun.dto.CustomerPaymentDto(c.id, c.name, c.phoneNumber, p.id, p.price, p.date, p.notes) FROM Customer c INNER JOIN c.payments p WHERE c.id = p.customer.id AND p.date = :date ORDER BY p.date asc"),
+		@NamedQuery(name = Customer.getPricesWithOneDate, query = "SELECT p.price FROM Payment p WHERE p.payed = true AND p.date = :date "),
+		@NamedQuery(name = Customer.getPricesWithTwoDates, query = "SELECT p.price FROM Payment p WHERE p.payed=true AND p.date BETWEEN :fromDate AND :toDate ") })
 @Entity
 public class Customer implements Serializable {
 
 	public static final String getAllUnpaid = "getAllUnpaid";
+	public static final String getAllUnpaidWithOneDate = "getAllUnpaidWithOneDate";
+	public static final String getAllUnpaidBetweenTwoDates = "getAllUnpaidBetweenTwoDates";
+	public static final String getAllPaidWithOneDate = "getAllPaidWithOneDate";
+	public static final String getAllPaidBetweenTwoDates = "getAllpaidBetweenTwoDates";
+	public static final String getPricesWithOneDate = "getPricesWithOneDate";
+	public static final String getPricesWithTwoDates = "getPricesWithTwoDates";
 
 	/**
 	 * 

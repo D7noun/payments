@@ -30,6 +30,19 @@ public class CustomerPaymentDto {
 		this.notes = notes;
 	}
 
+	public CustomerPaymentDto(Long customerId, String name, String phoneNumber, Long paymentId, boolean payed,
+			double price, Date date, String notes) {
+		super();
+		this.customerId = customerId;
+		this.name = name;
+		this.phoneNumber = phoneNumber;
+		this.paymentId = paymentId;
+		this.price = price;
+		this.date = date;
+		this.payed = payed;
+		this.notes = notes;
+	}
+
 	public CustomerPaymentDto(Long customerId, String name, String phoneNumber, Long paymentId, double price, Date date,
 			boolean payed, String notes) {
 		super();
@@ -234,9 +247,9 @@ public class CustomerPaymentDto {
 
 	public String rowStyleClass() {
 		if (threeDaysNotPayed()) {
-			return "bg-warning";
+			return "bg-threedays";
 		} else if (OneDayNotPayed()) {
-			return "bg-danger";
+			return "bg-onedays";
 		} else {
 			return "";
 		}

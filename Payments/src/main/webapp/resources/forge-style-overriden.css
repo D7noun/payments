@@ -612,7 +612,7 @@ h4.page-header {
 
 /*************************/
 .container {
-	width: 90%;
+	width: 99%;
 }
 
 .control-label {
@@ -688,6 +688,10 @@ textarea.form-control {
 	margin: 5px;
 }
 
+.headerButton.exportToExcel {
+	right: 70px;
+}
+
 #paymentsDataTable .ui-datatable-header {
 	height: 47px;
 }
@@ -705,6 +709,17 @@ textarea.form-control {
 	width: 100%;
 }
 
+.ui-separator {
+	width: 99%;
+}
+
+.bg-threedays {
+	background-color: #FFCD00;
+}
+
+.bg-onedays {
+	background-color: #FF9393;
+}
 /*.ui-datatable .ui-sortable-column-icon {
 	display: inline-block;
 	margin: 10px 0 0px 2px !important;
